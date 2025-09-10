@@ -43,6 +43,7 @@ function App() {
   const [beforeContent, setBeforeContent] = useState({})
   const [activeTab, setActiveTab] = useState('structured')
   const [isUploading, setIsUploading] = useState(false)
+  const [isFormatting, setIsFormatting] = useState(false)
 
   // Refs for timeouts to prevent re-renders
   const autoSaveTimeoutRef = useRef(null);
@@ -270,6 +271,8 @@ function App() {
   const handleFormattingFix = async () => {
     if (!resumeContent) return;
     
+    setIsFormatting(true);
+    
     try {
       const response = await fetch('/api/optimize-content', {
         method: 'POST',
@@ -323,6 +326,8 @@ function App() {
         const structured = convertFreeformToStructured(formattedContent);
         setStructuredResume(structured);
       }
+    } finally {
+      setIsFormatting(false);
     }
   }
 
@@ -829,10 +834,19 @@ function App() {
                             size="sm" 
                             variant="outline" 
                             onClick={handleFormattingFix}
-                            disabled={!resumeContent}
+                            disabled={!resumeContent || isFormatting}
                           >
-                            <Zap className="h-4 w-4 mr-1" />
-                            One-click Formatting Fix
+                            {isFormatting ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                Formatting...
+                              </>
+                            ) : (
+                              <>
+                                <Zap className="h-4 w-4 mr-1" />
+                                One-click Formatting Fix
+                              </>
+                            )}
                           </Button>
                           <Button 
                             size="sm" 
@@ -904,7 +918,14 @@ function App() {
                     disabled={(!resumeContent && activeTab === 'freeform') || !jobDescription || isAnalyzing}
                     className="w-full mt-4"
                   >
-                    {isAnalyzing ? 'Analyzing...' : 'Analyze ATS Score'}
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      'Analyze ATS Score'
+                    )}
                   </Button>
                 </CardContent>
               </Card>

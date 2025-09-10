@@ -676,6 +676,97 @@ const StructuredResumeEditor = ({
             Export to PDF
           </Button>
         </div>
+
+        {/* Live Preview Panel */}
+        {previewMode && (
+          <div className="mt-6 border rounded-lg p-4 bg-gray-50">
+            <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <Eye className="h-4 w-4 mr-1" />
+              Live Preview
+            </h4>
+            <div className="bg-white border rounded p-3 min-h-[200px]">
+              <div className="space-y-4">
+                {/* Contact Information Preview */}
+                {sectionData.contact?.name && (
+                  <div>
+                    <h3 className="text-lg font-bold">{sectionData.contact.name}</h3>
+                    <div className="flex flex-wrap gap-2 text-sm text-gray-600">
+                      {sectionData.contact.email && <span>{sectionData.contact.email}</span>}
+                      {sectionData.contact.email && sectionData.contact.phone && <span>|</span>}
+                      {sectionData.contact.phone && <span>{sectionData.contact.phone}</span>}
+                      {(sectionData.contact.email || sectionData.contact.phone) && sectionData.contact.location && <span>|</span>}
+                      {sectionData.contact.location && <span>{sectionData.contact.location}</span>}
+                    </div>
+                    {sectionData.contact.linkedin && (
+                      <div className="text-sm text-blue-600">{sectionData.contact.linkedin}</div>
+                    )}
+                  </div>
+                )}
+
+                {/* Professional Summary Preview */}
+                {sectionData.summary && (
+                  <div>
+                    <h4 className="font-semibold text-gray-900 border-b pb-1">PROFESSIONAL SUMMARY</h4>
+                    <p className="text-sm mt-2 whitespace-pre-line">{sectionData.summary}</p>
+                  </div>
+                )}
+
+                {/* Work Experience Preview */}
+                {sectionData.experience?.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-900 border-b pb-1">WORK EXPERIENCE</h4>
+                    <div className="mt-2 space-y-4">
+                      {sectionData.experience.map((exp, index) => (
+                        <div key={index} className="text-sm">
+                          <div className="flex justify-between">
+                            <span className="font-medium">{exp.position}</span>
+                            <span className="text-gray-600">{exp.startDate} - {exp.endDate}</span>
+                          </div>
+                          <div className="text-gray-700">{exp.company}</div>
+                          {exp.description && (
+                            <div className="mt-1 whitespace-pre-line text-gray-600">{exp.description}</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Education Preview */}
+                {sectionData.education?.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-900 border-b pb-1">EDUCATION</h4>
+                    <div className="mt-2 space-y-4">
+                      {sectionData.education.map((edu, index) => (
+                        <div key={index} className="text-sm">
+                          <div className="flex justify-between">
+                            <span className="font-medium">{edu.degree}</span>
+                            <span className="text-gray-600">{edu.startDate} - {edu.endDate}</span>
+                          </div>
+                          <div className="text-gray-700">{edu.institution}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Skills Preview */}
+                {sectionData.skills?.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-900 border-b pb-1">SKILLS</h4>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {sectionData.skills.map((skill, index) => (
+                        <span key={index} className="bg-gray-100 px-2 py-1 rounded text-xs">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
