@@ -56,9 +56,10 @@ This document provides step-by-step instructions for deploying both the frontend
 3. Choose your `ai-resume-builder` repository
 
 ### Step 3: Configure the service
-1. **Root Directory**: backend
-2. **Build Command**: (leave empty - Railway will detect this)
-3. **Start Command**: `cd src && python main.py`
+Railway should now automatically detect the configuration files we've added:
+- **Root Directory**: backend
+- **Start Command**: `cd src && python main.py` (from Procfile)
+- **Python Version**: 3.11 (from runtime.txt)
 
 ### Step 4: Add environment variables
 1. Go to your project settings
