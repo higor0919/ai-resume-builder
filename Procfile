@@ -1,0 +1,1 @@
+web: cd backend/src && python main.py
