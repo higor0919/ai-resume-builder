@@ -48,20 +48,28 @@ app.register_blueprint(ai_bp, url_prefix='/api')
 print("AI blueprint registered successfully")
 
 # Database initialization - only if not on Render
+# This is the critical section - we need to make sure no database code runs on Render
 if not skip_database:
-    print("Initializing database (not on Render)...")
+    print("=== INITIALIZING DATABASE (NOT ON RENDER) ===")
     try:
-        # Import database only if needed
+        # DEFENSIVE APPROACH: Only import database modules inside this block
         print("Importing database modules...")
+        
+        # Import the database instance
+        print("Importing SQLAlchemy instance...")
         from src.models.user import db as database_instance
+        print("SQLAlchemy instance imported successfully")
+        
+        # Import user routes (which also imports the database)
+        print("Importing user routes...")
         from src.routes.user import user_bp
-        print("Database modules imported successfully")
+        print("User routes imported successfully")
         
         # Configure database URI for local development
         db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'app.db')
         app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
+        print(f"Database URI configured: {app.config['SQLALCHEMY_DATABASE_URI']}")
         
         # Initialize database
         print("Initializing database app...")
@@ -98,8 +106,10 @@ if not skip_database:
         # Continue without database - make it optional
         print("Continuing without database support...")
 else:
-    print("=== RUNNING ON RENDER - COMPLETELY SKIPPING DATABASE INITIALIZATION ===")
+    print("=== RUNNING ON RENDER - COMPLETELY SKIPPING ALL DATABASE CODE ===")
     print("All AI features will work without database")
+    print("No database modules will be imported")
+    print("No database initialization will occur")
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
