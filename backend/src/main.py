@@ -27,7 +27,13 @@ def is_render_environment():
         os.environ.get('RENDER_EXTERNAL_URL'),
         os.environ.get('PYTHONPATH', '').find('render') != -1
     ]
-    return any(indicator for indicator in render_indicators if indicator)
+    result = any(indicator for indicator in render_indicators if indicator)
+    print(f"Render environment detection result: {result}")
+    print(f"RENDER: {os.environ.get('RENDER')}")
+    print(f"RENDER_SERVICE_NAME: {os.environ.get('RENDER_SERVICE_NAME')}")
+    print(f"RENDER_EXTERNAL_URL: {os.environ.get('RENDER_EXTERNAL_URL')}")
+    print(f"PYTHONPATH: {os.environ.get('PYTHONPATH')}")
+    return result
 
 # Print all environment variables for debugging (excluding sensitive ones)
 print("=== ENVIRONMENT DEBUGGING ===")
@@ -110,6 +116,9 @@ else:
     print("All AI features will work without database")
     print("No database modules will be imported")
     print("No database initialization will occur")
+    # Even ensure that no database-related code can be imported
+    # We'll set a flag in the app context to indicate database is disabled
+    app.config['DATABASE_DISABLED'] = True
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')

@@ -98,8 +98,13 @@ cd backend && source venv/bin/activate && pip install -r requirements.txt
 
 1. **Test the app** with sample resume content
 2. **Customize** the AI prompts in `backend/src/routes/ai.py`
-3. **Deploy** to production using the deployment guides
+3. **Deploy** to production using the [Deployment Guide](DEPLOYMENT_GUIDE.md)
 4. **Contribute** improvements back to the project
 
-Happy resume building! 🎉
+## 📚 Additional Resources
 
+- [Comprehensive Deployment Guide](DEPLOYMENT_GUIDE.md) - Detailed instructions for deploying to various platforms
+- [API Documentation](README.md#-api-documentation) - Details on all available endpoints
+- [Project Structure](README.md#-project-structure) - Understanding the codebase organization
+
+Happy resume building! 🎉

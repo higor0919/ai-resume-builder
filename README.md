@@ -186,7 +186,11 @@ ai-resume-builder/
 
 ## 🚀 Deployment
 
-### Frontend Deployment (Vercel)
+For comprehensive deployment instructions, see our [Deployment Guide](DEPLOYMENT_GUIDE.md).
+
+### Quick Deployment Options
+
+#### Frontend Deployment (Vercel)
 
 ```bash
 cd frontend
@@ -194,14 +198,24 @@ npm run build
 # Deploy to Vercel or your preferred platform
 ```
 
-### Backend Deployment (Railway/Heroku)
+### Backend Deployment (Railway/Render)
 
 ```bash
 cd backend
 # Add Procfile for deployment
 echo "web: python src/main.py" > Procfile
-# Deploy to Railway, Heroku, or your preferred platform
+# Deploy to Railway, Render, or your preferred platform
 ```
+
+## 📚 Documentation
+
+- [Quick Start Guide](QUICK_START.md) - Get up and running in 5 minutes
+- [Deployment Guide](DEPLOYMENT_GUIDE.md) - Comprehensive deployment instructions
+- [API Documentation](#-api-documentation) - Details on all available endpoints
+- [Troubleshooting Guide](TROUBLESHOOTING.md) - Solutions for common issues
+- [Scaling Guide](SCALING_GUIDE.md) - Performance and scaling instructions
+- [CI/CD Guide](CI_CD_GUIDE.md) - Automated testing and deployment pipelines
+- [Full Documentation](DOCUMENTATION.md) - Complete documentation overview
 
 ## 🤝 Contributing
 
@@ -219,9 +233,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions:
 
-1. Check the [Issues](https://github.com/higor0919/ai-resume-builder/issues) page
-2. Create a new issue with detailed information
-3. Join our community discussions
+1. Check the [Documentation](DOCUMENTATION.md)
+2. Review the [Troubleshooting Guide](TROUBLESHOOTING.md)
+3. Check the [Issues](https://github.com/higor0919/ai-resume-builder/issues) page
+4. Create a new issue with detailed information
 
 ## 🙏 Acknowledgments
 
