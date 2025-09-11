@@ -1,1 +1,1 @@
-web: cd backend/src && python main.py
+web: cd backend/src && PYTHONPATH=/opt/render/project/src/backend python main.py

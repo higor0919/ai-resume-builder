@@ -13,9 +13,11 @@ services:
       - key: FLASK_ENV
         value: production
       - key: SECRET_KEY
-        sync: false
+        value: "a-secure-random-secret-key-for-render-deployment"
       - key: RENDER
         value: "true"
+      - key: PYTHONPATH
+        value: "/opt/render/project/src/backend"
 
   - type: web
     name: ai-resume-builder-frontend

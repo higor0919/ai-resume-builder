@@ -11,7 +11,7 @@ from flask import Flask, send_from_directory
 from flask_cors import CORS
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
-app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'asdf#FGSgvasgf$5$WGT')
 
 # Enable CORS for all routes
 CORS(app)
@@ -37,8 +37,8 @@ print(f"Skip database initialization: {skip_database}")
 from src.routes.ai import ai_bp
 app.register_blueprint(ai_bp, url_prefix='/api')
 
+# Database initialization - only if not on Render
 if not skip_database:
-    # Only import and initialize database if not on Render
     try:
         # Import database only if needed
         from src.models.user import db as database_instance
@@ -74,10 +74,13 @@ if not skip_database:
         
     except Exception as e:
         print(f"Failed to initialize database: {e}")
+        import traceback
+        traceback.print_exc()
         # Continue without database - make it optional
         print("Continuing without database support...")
 else:
-    print("Running on Render - skipping database initialization for better compatibility")
+    print("Running on Render - completely skipping database initialization")
+    print("All AI features will work without database")
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -97,4 +100,9 @@ def serve(path):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Print current working directory for debugging
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"__file__ path: {__file__}")
+    print(f"sys.path: {sys.path}")
+    
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
