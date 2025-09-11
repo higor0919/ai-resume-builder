@@ -20,10 +20,17 @@ CORS(app)
 # Use /tmp directory which is writable in Render environment
 def is_render_environment():
     """Check if we're running in a Render environment"""
-    render_env_vars = ['RENDER', 'RENDER_SERVICE_NAME', 'RENDER_EXTERNAL_URL']
-    return any(os.environ.get(var) for var in render_env_vars)
+    # Check multiple possible environment variables
+    render_indicators = [
+        os.environ.get('RENDER'),
+        os.environ.get('RENDER_SERVICE_NAME'),
+        os.environ.get('RENDER_EXTERNAL_URL'),
+        os.environ.get('PYTHONPATH', '').find('render') != -1
+    ]
+    return any(indicator for indicator in render_indicators if indicator)
 
 # Print all environment variables for debugging (excluding sensitive ones)
+print("=== ENVIRONMENT DEBUGGING ===")
 print("Environment variables:")
 for key, value in os.environ.items():
     if 'KEY' not in key and 'SECRET' not in key and 'PASSWORD' not in key:
@@ -32,17 +39,23 @@ for key, value in os.environ.items():
 # Check if we should skip database initialization
 skip_database = is_render_environment()
 print(f"Skip database initialization: {skip_database}")
+print("=== END ENVIRONMENT DEBUGGING ===")
 
 # Always register the AI blueprint since it doesn't depend on the database
+print("Registering AI blueprint...")
 from src.routes.ai import ai_bp
 app.register_blueprint(ai_bp, url_prefix='/api')
+print("AI blueprint registered successfully")
 
 # Database initialization - only if not on Render
 if not skip_database:
+    print("Initializing database (not on Render)...")
     try:
         # Import database only if needed
+        print("Importing database modules...")
         from src.models.user import db as database_instance
         from src.routes.user import user_bp
+        print("Database modules imported successfully")
         
         # Configure database URI for local development
         db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'app.db')
@@ -51,13 +64,18 @@ if not skip_database:
         print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
         
         # Initialize database
+        print("Initializing database app...")
         database_instance.init_app(app)
+        print("Database app initialized successfully")
         
         # Register the user blueprint
+        print("Registering user blueprint...")
         app.register_blueprint(user_bp, url_prefix='/api')
+        print("User blueprint registered successfully")
         
         # Create tables with proper error handling
         def create_tables():
+            print("Creating database tables...")
             with app.app_context():
                 try:
                     print("Attempting to create database tables...")
@@ -71,6 +89,7 @@ if not skip_database:
         
         # Call create_tables after db is initialized
         create_tables()
+        print("Database initialization completed")
         
     except Exception as e:
         print(f"Failed to initialize database: {e}")
@@ -79,7 +98,7 @@ if not skip_database:
         # Continue without database - make it optional
         print("Continuing without database support...")
 else:
-    print("Running on Render - completely skipping database initialization")
+    print("=== RUNNING ON RENDER - COMPLETELY SKIPPING DATABASE INITIALIZATION ===")
     print("All AI features will work without database")
 
 @app.route('/', defaults={'path': ''})
@@ -101,8 +120,13 @@ def serve(path):
 
 if __name__ == '__main__':
     # Print current working directory for debugging
+    print("=== APPLICATION STARTUP DEBUGGING ===")
     print(f"Current working directory: {os.getcwd()}")
     print(f"__file__ path: {__file__}")
     print(f"sys.path: {sys.path}")
+    print("=== END APPLICATION STARTUP DEBUGGING ===")
     
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
+    port = int(os.environ.get('PORT', 5000))
+    print(f"Starting application on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=False)
+    print("Application started successfully")
