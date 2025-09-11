@@ -14,8 +14,8 @@ services:
         value: production
       - key: SECRET_KEY
         sync: false
-    domains:
-      - ai-resume-builder-backend.onrender.com
+      - key: RENDER
+        value: "true"
 
   - type: web
     name: ai-resume-builder-frontend

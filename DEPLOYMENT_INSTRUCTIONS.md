@@ -122,6 +122,7 @@ Railway should now automatically detect the configuration files we've added:
 1. **CORS Errors**: Make sure your backend is configured to accept requests from your frontend domain
 2. **API Key Issues**: Verify that your OpenAI API key is correctly set in environment variables
 3. **Build Failures**: Check that all dependencies are correctly specified in package.json
+4. **Database Issues**: The application now uses `/tmp/app.db` in Render environments to ensure write access
 
 ### Checking Logs
 - **Render**: Check deployment logs in the Render dashboard
