@@ -29,21 +29,20 @@ for key, value in os.environ.items():
     if 'KEY' not in key and 'SECRET' not in key and 'PASSWORD' not in key:
         print(f"  {key}: {value}")
 
-# Always register the AI blueprint since it doesn't depend on the database
-from src.routes.ai import ai_bp
-app.register_blueprint(ai_bp, url_prefix='/api')
-
 # Check if we should skip database initialization
 skip_database = is_render_environment()
 print(f"Skip database initialization: {skip_database}")
 
+# Always register the AI blueprint since it doesn't depend on the database
+from src.routes.ai import ai_bp
+app.register_blueprint(ai_bp, url_prefix='/api')
+
 if not skip_database:
-    # Try to configure database, but make it completely optional
-    db = None
+    # Only import and initialize database if not on Render
     try:
         # Import database only if needed
         from src.models.user import db as database_instance
-        db = database_instance
+        from src.routes.user import user_bp
         
         # Configure database URI for local development
         db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'app.db')
@@ -51,38 +50,30 @@ if not skip_database:
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
         
-        # Initialize database with error handling
-        try:
-            db.init_app(app)
-            
-            # Register the user blueprint only if database is available
-            from src.routes.user import user_bp
-            app.register_blueprint(user_bp, url_prefix='/api')
-            
-            # Create tables with proper error handling
-            def create_tables():
-                with app.app_context():
-                    try:
-                        print("Attempting to create database tables...")
-                        db.create_all()
-                        print("Database tables created successfully")
-                    except Exception as e:
-                        print(f"Error creating database tables: {e}")
-                        print(f"Database URI at time of error: {app.config.get('SQLALCHEMY_DATABASE_URI', 'Not set')}")
-                        import traceback
-                        traceback.print_exc()
-            
-            # Call create_tables after db is initialized
-            create_tables()
-            
-        except Exception as e:
-            print(f"Failed to initialize database connection: {e}")
-            # Continue without database - make it optional
-            print("Continuing without database support...")
-            # We won't register the user blueprint since it depends on the database
-            
+        # Initialize database
+        database_instance.init_app(app)
+        
+        # Register the user blueprint
+        app.register_blueprint(user_bp, url_prefix='/api')
+        
+        # Create tables with proper error handling
+        def create_tables():
+            with app.app_context():
+                try:
+                    print("Attempting to create database tables...")
+                    database_instance.create_all()
+                    print("Database tables created successfully")
+                except Exception as e:
+                    print(f"Error creating database tables: {e}")
+                    print(f"Database URI at time of error: {app.config.get('SQLALCHEMY_DATABASE_URI', 'Not set')}")
+                    import traceback
+                    traceback.print_exc()
+        
+        # Call create_tables after db is initialized
+        create_tables()
+        
     except Exception as e:
-        print(f"Failed to import database module: {e}")
+        print(f"Failed to initialize database: {e}")
         # Continue without database - make it optional
         print("Continuing without database support...")
 else:
