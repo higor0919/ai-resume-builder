@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.j
 import { FileText, Target, Zap, CheckCircle, AlertCircle, Loader2, Lightbulb, TrendingUp, Save, Eye, EyeOff, ArrowLeftRight, Download } from 'lucide-react'
 import StructuredResumeEditor from '@/components/StructuredResumeEditor.jsx'
 import { exportToPDF } from '@/utils/pdfExporter.js'
+import { analyzeResume, optimizeContent, uploadResume } from '@/utils/api.js'
 import './App.css'
 
 // Initial structured resume data
@@ -274,21 +275,11 @@ function App() {
     setIsFormatting(true);
     
     try {
-      const response = await fetch('/api/optimize-content', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: resumeContent,
-          type: 'format',
-          context: {
-            job_description: jobDescription,
-            // Pass the appropriate resume data based on active tab
-            resume_content: activeTab === 'structured' ? JSON.stringify(structuredResume) : resumeContent
-          }
-        })
-      })
+      const response = await optimizeContent(resumeContent, 'format', {
+        job_description: jobDescription,
+        // Pass the appropriate resume data based on active tab
+        resume_content: activeTab === 'structured' ? JSON.stringify(structuredResume) : resumeContent
+      });
       
       if (response.ok) {
         const result = await response.json();
@@ -341,7 +332,7 @@ function App() {
       .trim();
   }
 
-  const analyzeResume = async () => {
+  const analyzeResumeHandler = async () => {
     if (((activeTab === 'structured' && !structuredResume) || 
          (activeTab === 'freeform' && !resumeContent)) || 
         !jobDescription) return
@@ -349,18 +340,11 @@ function App() {
     setIsAnalyzing(true)
     
     try {
-      const response = await fetch('/api/analyze-resume', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          // Send the appropriate resume data based on active tab
-          resume_content: activeTab === 'structured' ? JSON.stringify(structuredResume) : resumeContent,
-          job_description: jobDescription,
-          format: activeTab // Send format info to backend
-        })
-      })
+      const response = await analyzeResume(
+        activeTab === 'structured' ? JSON.stringify(structuredResume) : resumeContent,
+        jobDescription,
+        activeTab
+      );
       
       if (response.ok) {
         const result = await response.json()
@@ -491,21 +475,11 @@ function App() {
     setLoadingOptimizations(prev => ({ ...prev, [suggestion.id]: true }))
     
     try {
-      const response = await fetch('/api/optimize-content', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: suggestion.text,
-          type: suggestion.type,
-          context: {
-            resume_content: activeTab === 'structured' ? JSON.stringify(structuredResume) : resumeContent,
-            job_description: jobDescription,
-            suggestion_category: suggestion.category
-          }
-        })
-      })
+      const response = await optimizeContent(suggestion.text, suggestion.type, {
+        resume_content: activeTab === 'structured' ? JSON.stringify(structuredResume) : resumeContent,
+        job_description: jobDescription,
+        suggestion_category: suggestion.category
+      });
       
       if (response.ok) {
         const result = await response.json()
@@ -598,10 +572,7 @@ function App() {
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await fetch('/api/upload-resume', {
-        method: 'POST',
-        body: formData
-      });
+      const response = await uploadResume(formData);
       
       console.log('Upload response status:', response.status);
       
@@ -666,17 +637,17 @@ function App() {
         console.error('Upload error response:', errorText);
         // Try fallback approach
         const fallbackData = {
-          contact: {
-            name: "",
-            email: "",
-            phone: "",
-            location: "",
-            linkedin: ""
-          },
-          summary: "Uploaded resume content - please review and edit the information below.",
-          experience: [],
-          education: [],
-          skills: []
+            contact: {
+              name: "",
+              email: "",
+              phone: "",
+              location: "",
+              linkedin: ""
+            },
+            summary: "Uploaded resume content - please review and edit the information below.",
+            experience: [],
+            education: [],
+            skills: []
         };
         setStructuredResume(fallbackData);
         setResumeContent(fallbackData.summary);
@@ -914,7 +885,7 @@ function App() {
                     className="min-h-[150px]"
                   />
                   <Button 
-                    onClick={analyzeResume}
+                    onClick={analyzeResumeHandler}
                     disabled={(!resumeContent && activeTab === 'freeform') || !jobDescription || isAnalyzing}
                     className="w-full mt-4"
                   >
